@@ -1,8 +1,8 @@
 KinectFusionApp
 ===============
 
-This is a sample application using the [KinectFusionLib](https://github.com/chrdiller/KinectFusionLib). It implements 
-cameras (for data acquisition from recordings as well as from a live depth sensor) as data sources. The resulting fused volume 
+This is a sample application using the [KinectFusionLib](https://github.com/chrdiller/KinectFusionLib). It implements
+cameras (for data acquisition from recordings as well as from a live depth sensor) as data sources. The resulting fused volume
 can then be exported into a pointcloud or a dense surface mesh.
 
 Dependencies
@@ -40,3 +40,11 @@ Use the following keys to perform actions:
 License
 -------
 This library is licensed under MIT.
+
+more steps
+-------
+* `ln -s /usr/local/cuda/include/crt/math_functions.hpp /usr/local/cuda/include/math_functions.hpp`
+* installed Eigen 3.3.7 from source
+* installed OpenCV with CUDA flag enabled
+* grab realsense dependency here https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+* used gcc-8

@@ -1,4 +1,3 @@
-
 #include <kinectfusion.h>
 #include <depth_camera.h>
 #include <util.h>
@@ -55,7 +54,8 @@ auto make_camera(const std::shared_ptr<cpptoml::table>& toml_config)
     const auto camera_type = *toml_config->get_qualified_as<std::string>("camera.type");
     if (camera_type == "Pseudo") {
         std::stringstream source_path {};
-        source_path << data_path << "source/" << recording_name << "/";
+        // source_path << data_path << "source/" << recording_name << "/";
+        source_path << data_path;
         camera = std::make_unique<PseudoCamera>(source_path.str());
     } else if (camera_type == "Xtion") {
         camera = std::make_unique<XtionCamera>();
@@ -85,6 +85,8 @@ void main_loop(const std::unique_ptr<DepthCamera> camera, const kinectfusion::Gl
 
         //2 Process frame
         bool success = pipeline.process_frame(frame.depth_map, frame.color_map);
+        if (success)
+            std::cout << "FRAME PROCESSED" << std::endl;
         if (!success)
             std::cout << "Frame could not be processed" << std::endl;
 

@@ -1,13 +1,13 @@
 # Configuration file for KinectFusionApp
 
-data_path = "/home/christian/share/dataset/"
+data_path = "/home/hyjale/Desktop/illixr/TUM_dataset/"
 recording_name = "woman"
 
 # Input camera settings
 [camera]
 #type = "Pseudo"
-#type = "Xtion"
-type = "RealSense"
+type = "Xtion"
+#type = "RealSense"
 
 [camera.realsense]
 live = true
@@ -16,10 +16,10 @@ live = true
 [kinectfusion]
 # The overall size of the volume (in mm). Will be allocated on the GPU and is thus limited by the amount of
 # storage you have available. Dimensions are (x, y, z).
-volume_size = [ 512, 512, 512 ]
+volume_size = [ 2048, 512, 512 ]
 
 # The amount of mm one single voxel will represent in each dimension. Controls the resolution of the volume.
-voxel_scale = 2.0
+voxel_scale = 8.0
 
 # Parameters for the Bilateral Filter, applied to incoming depth frames.
 # Directly passed to cv::cuda::bilateralFilter(...); for further information, have a look at the opencv docs.

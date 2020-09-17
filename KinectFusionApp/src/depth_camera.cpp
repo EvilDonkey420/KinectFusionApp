@@ -1,4 +1,3 @@
-
 #include <depth_camera.h>
 
 #include <iostream>
@@ -20,20 +19,26 @@
 PseudoCamera::PseudoCamera(const std::string& _data_path) :
         data_path{_data_path}, cam_params{}, current_index{0}
 {
-    std::ifstream cam_params_stream { data_path + "seq_cparam.txt" };
-    if (!cam_params_stream.is_open())
-        throw std::runtime_error{"Camera parameters could not be read"};
-    cam_params_stream >> cam_params.image_width >> cam_params.image_height;
-    cam_params_stream >> cam_params.focal_x >> cam_params.focal_y;
-    cam_params_stream >> cam_params.principal_x >> cam_params.principal_y;
+    // std::ifstream cam_params_stream { data_path + "seq_cparam.txt" };
+    // if (!cam_params_stream.is_open())
+    //     throw std::runtime_error{"Camera parameters could not be read"};
+    // cam_params_stream >> cam_params.image_width >> cam_params.image_height;
+    // cam_params_stream >> cam_params.focal_x >> cam_params.focal_y;
+    // cam_params_stream >> cam_params.principal_x >> cam_params.principal_y;
+    cam_params.image_width = 640;
+    cam_params.image_height = 480;
+    cam_params.focal_x = 535.4;
+    cam_params.focal_y = 539.2;
+    cam_params.principal_x = 320.1;
+    cam_params.principal_y = 247.6;
 };
 
 InputFrame PseudoCamera::grab_frame () const
 {
     std::stringstream depth_file;
-    depth_file << data_path << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
+    depth_file << data_path << "depth/" << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
     std::stringstream color_file;
-    color_file << data_path << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
+    color_file << data_path << "rgb/" << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
 
     InputFrame frame {};
     cv::imread(depth_file.str(), -1).convertTo(frame.depth_map, CV_32FC1);
@@ -43,8 +48,10 @@ InputFrame PseudoCamera::grab_frame () const
         current_index = 0;
         depth_file = std::stringstream {};
         color_file = std::stringstream {};
-        depth_file << data_path << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
-        color_file << data_path << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
+        // depth_file << data_path << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
+        // color_file << data_path << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
+        depth_file << data_path << "depth/" << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
+        color_file << data_path << "rgb/" << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
         frame.depth_map = cv::imread(depth_file.str(), -1);
     }
 
