@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(KinectFusionApp)
 
 # Use modern C++
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
@@ -58,3 +58,6 @@ file(GLOB KinectFusionApp_SRCS ${PROJECT_SOURCE_DIR}/*.cpp)
 
 cuda_add_executable(KinectFusionApp ${KinectFusionApp_SRCS})
 target_link_libraries(KinectFusionApp ${OpenCV_LIBS} ${OPENNI2_LIBRARY} ${realsense2_LIBRARY} KinectFusion)
+
+add_library(plugin SHARED ${KinectFusionApp_SRCS})
+target_link_libraries(plugin ${OpenCV_LIBS} ${OPENNI2_LIBRARY} ${realsense2_LIBRARY} KinectFusion)

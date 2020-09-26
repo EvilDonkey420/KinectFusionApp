@@ -16,8 +16,16 @@
 #include <cxxopts.hpp>
 #include <cpptoml.h>
 
+// ILLIXR includes
+#include "common/phonebook.hpp"
+#include "common/plugin.hpp"
+#include "common/threadloop.hpp"
+#include "common/switchboard.hpp"
+
 std::string data_path {};
 std::string recording_name {};
+
+using namespace ILLIXR;
 
 auto make_configuration(const std::shared_ptr<cpptoml::table>& toml_config)
 {
@@ -54,8 +62,7 @@ auto make_camera(const std::shared_ptr<cpptoml::table>& toml_config)
     const auto camera_type = *toml_config->get_qualified_as<std::string>("camera.type");
     if (camera_type == "Pseudo") {
         std::stringstream source_path {};
-        // source_path << data_path << "source/" << recording_name << "/";
-        source_path << data_path;
+        source_path << data_path << "source/" << recording_name << "/";
         camera = std::make_unique<PseudoCamera>(source_path.str());
     } else if (camera_type == "Xtion") {
         camera = std::make_unique<XtionCamera>();
@@ -164,27 +171,77 @@ void setup_cuda_device()
 
 int main(int argc, char* argv[])
 {
-    // Parse command line options
-    cxxopts::Options options { "KinectFusionApp",
-                               "Sample application for KinectFusionLib, a modern implementation of the KinectFusion approach"};
-    options.add_options()("c,config", "Configuration filename", cxxopts::value<std::string>());
-    auto program_arguments = options.parse(argc, argv);
-    if (program_arguments.count("config") == 0)
-        throw std::invalid_argument("You have to specify a path to the configuration file");
+    // // Parse command line options
+    // cxxopts::Options options { "KinectFusionApp",
+    //                            "Sample application for KinectFusionLib, a modern implementation of the KinectFusion approach"};
+    // options.add_options()("c,config", "Configuration filename", cxxopts::value<std::string>());
+    // auto program_arguments = options.parse(argc, argv);
+    // if (program_arguments.count("config") == 0)
+    //     throw std::invalid_argument("You have to specify a path to the configuration file");
 
-    // Parse TOML configuration file
-    auto toml_config = cpptoml::parse_file(program_arguments["config"].as<std::string>());
-    data_path = *toml_config->get_as<std::string>("data_path");
-    recording_name = *toml_config->get_as<std::string>("recording_name");
+    // // Parse TOML configuration file
+    // auto toml_config = cpptoml::parse_file(program_arguments["config"].as<std::string>());
+    // data_path = *toml_config->get_as<std::string>("data_path");
+    // recording_name = *toml_config->get_as<std::string>("recording_name");
 
-    // Print info about available CUDA devices and specify device to use
-    setup_cuda_device();
+    // // Print info about available CUDA devices and specify device to use
+    // setup_cuda_device();
 
-    // Start the program's main loop
-    main_loop(
-            make_camera(toml_config),
-            make_configuration(toml_config)
-    );
+    // // Start the program's main loop
+    // main_loop(
+    //         make_camera(toml_config),
+    //         make_configuration(toml_config)
+    // );
 
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
+		return 0;
 }
+
+class kinect_fusion : public threadloop {
+public:
+		kinect_fusion(std::string name_, phonebook *pb_)
+		: threadloop{name_, pb_}
+		, sb{pb->lookup_impl<switchboard>()}
+		{
+				 // Parse TOML configuration file
+				// auto toml_config = cpptoml::parse_file(program_arguments["config"].as<std::string>());
+				auto toml_config = cpptoml::parse_file("../../KinectFusionApp/KinectFusionApp/config.toml");
+				data_path = *toml_config->get_as<std::string>("data_path");
+				recording_name = *toml_config->get_as<std::string>("recording_name");
+
+				setup_cuda_device();
+				camera = make_camera(toml_config);
+				configuration = make_configuration(toml_config);
+
+				kinectfusion::Pipeline test{ camera->get_parameters(), configuration };
+				pipeline = &test;
+				cv::namedWindow("Pipeline Output");
+		}
+
+		virtual void start() override { }
+		virtual ~kinect_fusion() override { }
+private:
+		const std::shared_ptr<switchboard> sb;
+
+		kinectfusion::GlobalConfiguration configuration;
+		std::unique_ptr<DepthCamera> camera;
+		kinectfusion::Pipeline* pipeline;
+
+protected:
+		virtual void _p_one_iteration() override {
+				InputFrame frame = camera->grab_frame();
+
+        //2 Process frame
+        bool success = pipeline->process_frame(frame.depth_map, frame.color_map);
+        if (success)
+            std::cout << "FRAME PROCESSED" << std::endl;
+
+        if (!success)
+            std::cout << "Frame could not be processed" << std::endl;
+
+        //3 Display the output
+        cv::imshow("Pipeline Output", pipeline->get_last_model_frame());
+		}
+};
+
+PLUGIN_MAIN(kinect_fusion);
