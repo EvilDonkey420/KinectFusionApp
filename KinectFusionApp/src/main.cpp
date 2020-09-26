@@ -203,8 +203,7 @@ public:
 		: threadloop{name_, pb_}
 		, sb{pb->lookup_impl<switchboard>()}
 		{
-				 // Parse TOML configuration file
-				// auto toml_config = cpptoml::parse_file(program_arguments["config"].as<std::string>());
+				// Parse TOML configuration file
 				auto toml_config = cpptoml::parse_file("../../KinectFusionApp/KinectFusionApp/config.toml");
 				data_path = *toml_config->get_as<std::string>("data_path");
 				recording_name = *toml_config->get_as<std::string>("recording_name");
@@ -216,9 +215,13 @@ public:
 				kinectfusion::Pipeline test{ camera->get_parameters(), configuration };
 				pipeline = &test;
 				cv::namedWindow("Pipeline Output");
+				std::cout << "Ended initialization" << std::endl;
 		}
 
-		virtual void start() override { }
+		virtual void stop() override {
+				threadloop::stop();
+		}
+
 		virtual ~kinect_fusion() override { }
 private:
 		const std::shared_ptr<switchboard> sb;
@@ -228,7 +231,12 @@ private:
 		kinectfusion::Pipeline* pipeline;
 
 protected:
+		virtual skip_option _p_should_skip() override {
+				return skip_option::run;
+    }
+
 		virtual void _p_one_iteration() override {
+				std::cout << "Entered _p_one_iteration() loop" << std::endl;
 				InputFrame frame = camera->grab_frame();
 
         //2 Process frame
