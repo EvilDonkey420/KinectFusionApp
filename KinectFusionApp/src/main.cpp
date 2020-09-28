@@ -169,34 +169,6 @@ void setup_cuda_device()
     cv::cuda::setDevice(0);
 }
 
-int main(int argc, char* argv[])
-{
-    // // Parse command line options
-    // cxxopts::Options options { "KinectFusionApp",
-    //                            "Sample application for KinectFusionLib, a modern implementation of the KinectFusion approach"};
-    // options.add_options()("c,config", "Configuration filename", cxxopts::value<std::string>());
-    // auto program_arguments = options.parse(argc, argv);
-    // if (program_arguments.count("config") == 0)
-    //     throw std::invalid_argument("You have to specify a path to the configuration file");
-
-    // // Parse TOML configuration file
-    // auto toml_config = cpptoml::parse_file(program_arguments["config"].as<std::string>());
-    // data_path = *toml_config->get_as<std::string>("data_path");
-    // recording_name = *toml_config->get_as<std::string>("recording_name");
-
-    // // Print info about available CUDA devices and specify device to use
-    // setup_cuda_device();
-
-    // // Start the program's main loop
-    // main_loop(
-    //         make_camera(toml_config),
-    //         make_configuration(toml_config)
-    // );
-
-    // return EXIT_SUCCESS;
-		return 0;
-}
-
 class kinect_fusion : public threadloop {
 public:
 		kinect_fusion(std::string name_, phonebook *pb_)
@@ -212,10 +184,8 @@ public:
 				camera = make_camera(toml_config);
 				configuration = make_configuration(toml_config);
 
-				kinectfusion::Pipeline test{ camera->get_parameters(), configuration };
-				pipeline = &test;
-				cv::namedWindow("Pipeline Output");
-				std::cout << "Ended initialization" << std::endl;
+
+				pipeline = new kinectfusion::Pipeline{ camera->get_parameters(), configuration };
 		}
 
 		virtual void stop() override {
@@ -223,6 +193,7 @@ public:
 		}
 
 		virtual ~kinect_fusion() override { }
+
 private:
 		const std::shared_ptr<switchboard> sb;
 
@@ -234,9 +205,11 @@ protected:
 		virtual skip_option _p_should_skip() override {
 				return skip_option::run;
     }
+		virtual void _p_thread_setup() override {
+				cv::namedWindow("Pipeline Output");
+		}
 
 		virtual void _p_one_iteration() override {
-				std::cout << "Entered _p_one_iteration() loop" << std::endl;
 				InputFrame frame = camera->grab_frame();
 
         //2 Process frame
@@ -249,7 +222,11 @@ protected:
 
         //3 Display the output
         cv::imshow("Pipeline Output", pipeline->get_last_model_frame());
+				cv::waitKey(1);
 		}
 };
 
 PLUGIN_MAIN(kinect_fusion);
+
+int main(int argc, char* argv[]) { return 0; }
+
