@@ -21,6 +21,7 @@
 #include "common/plugin.hpp"
 #include "common/threadloop.hpp"
 #include "common/switchboard.hpp"
+#include "common/data_format.hpp"
 
 std::string data_path {};
 std::string recording_name {};
@@ -74,7 +75,9 @@ auto make_camera(const std::shared_ptr<cpptoml::table>& toml_config)
             source_file << data_path << "source/" << recording_name << ".bag";
             camera = std::make_unique<RealSenseCamera>(source_file.str());
         }
-    } else {
+    } else if (camera_type == "ZED") {
+				camera = std::make_unique<ZEDMiniCamera>();
+		} else {
         throw std::logic_error("There is no implementation for the camera type you specified.");
     }
 
@@ -175,8 +178,10 @@ public:
 		: threadloop{name_, pb_}
 		, sb{pb->lookup_impl<switchboard>()}
 		{
+				rgb_depth_buffer = NULL;
+
 				// Parse TOML configuration file
-				auto toml_config = cpptoml::parse_file("../../KinectFusionApp/KinectFusionApp/config.toml");
+				auto toml_config = cpptoml::parse_file("../KinectFusionApp/KinectFusionApp/config.toml");
 				data_path = *toml_config->get_as<std::string>("data_path");
 				recording_name = *toml_config->get_as<std::string>("recording_name");
 
@@ -184,18 +189,27 @@ public:
 				camera = make_camera(toml_config);
 				configuration = make_configuration(toml_config);
 
-
 				pipeline = new kinectfusion::Pipeline{ camera->get_parameters(), configuration };
+		}
+
+		virtual void start() override {
+				threadloop::start();
+				sb->schedule<rgb_depth_type>(id, "rgb_depth", [&](const rgb_depth_type *datum) {
+						rgb_depth_buffer = datum;
+				});
 		}
 
 		virtual void stop() override {
 				threadloop::stop();
 		}
 
-		virtual ~kinect_fusion() override { }
+		virtual ~kinect_fusion() override {
+				delete pipeline;
+		}
 
 private:
 		const std::shared_ptr<switchboard> sb;
+		const rgb_depth_type* rgb_depth_buffer;
 
 		kinectfusion::GlobalConfiguration configuration;
 		std::unique_ptr<DepthCamera> camera;
@@ -210,7 +224,25 @@ protected:
 		}
 
 		virtual void _p_one_iteration() override {
-				InputFrame frame = camera->grab_frame();
+				// ASUS Xtion
+				// InputFrame frame = camera->grab_frame();
+
+				// ZED
+				if (!rgb_depth_buffer)
+						return;
+
+				cv::Mat depth{*rgb_depth_buffer->depth.value()};
+				cv::Mat rgb{*rgb_depth_buffer->rgb.value()};
+				cv::Mat rgb_convert;
+				cv::cvtColor(rgb, rgb_convert, cv::COLOR_BGR2RGB);
+
+				// cv::imshow("Pipeline Output", rgb);
+				// cv::waitKey(1);
+
+				InputFrame frame {depth, rgb_convert};
+				// InputFrame frame {};
+				// frame.depth_map = depth;
+				// frame.color_map = rgb;
 
         //2 Process frame
         bool success = pipeline->process_frame(frame.depth_map, frame.color_map);

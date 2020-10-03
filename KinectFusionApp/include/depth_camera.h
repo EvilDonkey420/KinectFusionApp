@@ -101,21 +101,15 @@ private:
     float depth_scale;
 };
 
-
-/*
- * Provides depth frames acquired by a Microsoft Kinect camera.
- */
-/*
-class KinectCamera : public DepthCamera {
+class ZEDMiniCamera : public DepthCamera {
 public:
-    KinectCamera();
+		ZEDMiniCamera();
+		~ZEDMiniCamera() override = default;
+		InputFrame grab_frame() const override;
+		CameraParameters get_parameters() const override;
 
-    ~KinectCamera();
-
-    InputFrame grab_frame() const override;
-
-    CameraParameters get_parameters() const override;
+private:
+		CameraParameters cam_params;
 };
- */
 
 #endif //KINECTFUSION_CAMERA_H
