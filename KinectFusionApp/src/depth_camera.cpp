@@ -301,10 +301,10 @@ ZEDMiniCamera::ZEDMiniCamera() {
 		CameraParameters cp {};
     cp.image_width = 672;
     cp.image_height = 376;
-    cp.focal_x = 339.99;
-		cp.focal_y = 339.99;
-    cp.principal_x = 322.06;
-		cp.principal_y = 207.483;
+    cp.focal_x = 349.869;
+		cp.focal_y = 349.869;
+    cp.principal_x = 323.153;
+		cp.principal_y = 199.434;
     cam_params = cp;
 }
 

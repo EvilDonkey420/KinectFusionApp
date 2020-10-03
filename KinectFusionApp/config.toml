@@ -20,7 +20,7 @@ live = true
 volume_size = [ 512, 512, 512 ]
 
 # The amount of mm one single voxel will represent in each dimension. Controls the resolution of the volume.
-voxel_scale = 4.0
+voxel_scale = 8.0
 
 # Parameters for the Bilateral Filter, applied to incoming depth frames.
 # Directly passed to cv::cuda::bilateralFilter(...); for further information, have a look at the opencv docs.
