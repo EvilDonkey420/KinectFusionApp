@@ -185,10 +185,10 @@ public:
 				data_path = *toml_config->get_as<std::string>("data_path");
 				recording_name = *toml_config->get_as<std::string>("recording_name");
 
+				// KF setup
 				setup_cuda_device();
 				camera = make_camera(toml_config);
 				configuration = make_configuration(toml_config);
-
 				pipeline = new kinectfusion::Pipeline{ camera->get_parameters(), configuration };
 		}
 
@@ -230,30 +230,21 @@ protected:
 				// ZED
 				if (!rgb_depth_buffer)
 						return;
-
 				cv::Mat depth{*rgb_depth_buffer->depth.value()};
 				cv::Mat rgb{*rgb_depth_buffer->rgb.value()};
-				cv::Mat rgb_convert;
-				cv::cvtColor(rgb, rgb_convert, cv::COLOR_BGR2RGB);
-
-				// cv::imshow("Pipeline Output", rgb);
-				// cv::waitKey(1);
-
-				InputFrame frame {depth, rgb_convert};
-				// InputFrame frame {};
-				// frame.depth_map = depth;
-				// frame.color_map = rgb;
+				cv::cvtColor(rgb, rgb, cv::COLOR_RGBA2RGB);
+				InputFrame frame {depth, rgb};
 
         //2 Process frame
         bool success = pipeline->process_frame(frame.depth_map, frame.color_map);
         if (success)
-            std::cout << "FRAME PROCESSED" << std::endl;
-
-        if (!success)
-            std::cout << "Frame could not be processed" << std::endl;
+					std::cout << "FRAME PROCESSED" << std::endl;
+				else
+					std::cout << "Frame could not be processed" << std::endl;
 
         //3 Display the output
         cv::imshow("Pipeline Output", pipeline->get_last_model_frame());
+				// cv::imshow("Pipeline Output", depth);
 				cv::waitKey(1);
 		}
 };

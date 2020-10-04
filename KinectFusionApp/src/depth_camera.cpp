@@ -48,8 +48,6 @@ InputFrame PseudoCamera::grab_frame () const
         current_index = 0;
         depth_file = std::stringstream {};
         color_file = std::stringstream {};
-        // depth_file << data_path << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
-        // color_file << data_path << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
         depth_file << data_path << "depth/" << "seq_depth" << std::setfill('0') << std::setw(5) << current_index << ".png";
         color_file << data_path << "rgb/" << "seq_color" << std::setfill('0') << std::setw(5) << current_index << ".png";
         frame.depth_map = cv::imread(depth_file.str(), -1);
