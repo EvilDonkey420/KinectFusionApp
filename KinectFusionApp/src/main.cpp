@@ -76,8 +76,10 @@ auto make_camera(const std::shared_ptr<cpptoml::table>& toml_config)
             camera = std::make_unique<RealSenseCamera>(source_file.str());
         }
     } else if (camera_type == "ZED") {
-				camera = std::make_unique<ZEDMiniCamera>();
-		} else {
+        camera = std::make_unique<ZEDMiniCamera>();
+    } else if (camera_type == "RealSenseILLIXR") {
+        camera = std::make_unique<RealSenseCameraILLIXR>();
+    } else {
         throw std::logic_error("There is no implementation for the camera type you specified.");
     }
 

@@ -296,13 +296,13 @@ CameraParameters RealSenseCamera::get_parameters() const
 }
 
 ZEDMiniCamera::ZEDMiniCamera() {
-		CameraParameters cp {};
+    CameraParameters cp {};
     cp.image_width = 672;
     cp.image_height = 376;
     cp.focal_x = 349.869;
-		cp.focal_y = 349.869;
+    cp.focal_y = 349.869;
     cp.principal_x = 323.153;
-		cp.principal_y = 199.434;
+    cp.principal_y = 199.434;
     cam_params = cp;
 }
 
@@ -312,4 +312,19 @@ CameraParameters ZEDMiniCamera::get_parameters() const {
 		return cam_params;
 }
 
+RealSenseCameraILLIXR::RealSenseCameraILLIXR() {
+    CameraParameters cp {};
+    cp.image_width = 640;
+    cp.image_height = 480;
+    cp.focal_x = 393.606;
+    cp.focal_y = 393.606;
+    cp.principal_x = 325.048;
+    cp.principal_y = 241.414;
+    cam_params = cp;
+}
 
+InputFrame RealSenseCameraILLIXR::grab_frame() const {};
+
+CameraParameters RealSenseCameraILLIXR::get_parameters() const {
+    return cam_params;
+}

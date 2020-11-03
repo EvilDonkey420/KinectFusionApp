@@ -112,4 +112,15 @@ private:
 		CameraParameters cam_params;
 };
 
+class RealSenseCameraILLIXR : public DepthCamera {
+public:
+    RealSenseCameraILLIXR();
+    ~RealSenseCameraILLIXR() override = default;
+    InputFrame grab_frame() const override;
+    CameraParameters get_parameters() const override;
+
+private:
+    CameraParameters cam_params;
+};
+
 #endif //KINECTFUSION_CAMERA_H

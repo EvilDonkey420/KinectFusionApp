@@ -8,7 +8,8 @@ recording_name = "woman"
 #type = "Pseudo"
 #type = "Xtion"
 #type = "RealSense"
-type = "ZED"
+#type = "ZED"
+type = "RealSenseILLIXR"
 
 [camera.realsense]
 live = true
@@ -17,7 +18,7 @@ live = true
 [kinectfusion]
 # The overall size of the volume (in mm). Will be allocated on the GPU and is thus limited by the amount of
 # storage you have available. Dimensions are (x, y, z).
-volume_size = [ 512, 512, 512 ]
+volume_size = [ 2048, 512, 512 ]
 
 # The amount of mm one single voxel will represent in each dimension. Controls the resolution of the volume.
 voxel_scale = 8.0
